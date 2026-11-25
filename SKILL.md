@@ -82,3 +82,7 @@ python3 scripts/huoxingwen.py convert "我爱你" --level 1 --flower messy
 改 `scripts/huoxingwen.py` 顶部的 `MAP`（正字 → 变体列表）。变体必须是单字符，否则反向还原表对不上。部分条目来自 MNBVC 里屋论坛语料抽样，见 `MNBVC-火星文资料/火星文变体对照.csv`。
 
 常用符号池：`☆ ゞ 灬 ﹏ ミ 彡 〆 ° • →`
+
+## 来源
+
+三表（简体/繁体/火星文，3815 位）来自 [Niefee/textConversion](https://github.com/Niefee/textConversion)；部分变体取自 [esbatmop/MNBVC](https://github.com/esbatmop/MNBVC) 语料抽样；花漾字 8 种叠加规则与火星文直映射来自 [gurecn/YuyanIme](https://github.com/gurecn/YuyanIme)（语燕输入法）。
