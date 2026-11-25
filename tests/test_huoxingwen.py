@@ -28,6 +28,33 @@ class TestConvert(unittest.TestCase):
         self.assertNotEqual(a, b)
 
 
+class TestFlower(unittest.TestCase):
+    STYLES = ["vine", "messy", "germinate", "fog", "prohibit", "grass", "wind"]
+
+    def test_styles_wrap_and_strip(self):
+        for s in self.STYLES:
+            out = h.flower("花漾字", s)
+            self.assertGreater(len(out), 3)
+            self.assertEqual(h.strip_flower(out), "花漾字")
+            self.assertEqual(h.restore(out), "花漾字")
+
+    def test_style_markers(self):
+        self.assertEqual(h.flower("字", "vine"), "ζั͡字ั͡✾")
+        self.assertEqual(h.flower("字", "messy"), "҉҉҉字҉҉҉")
+        self.assertEqual(h.flower("字", "prohibit"), "字⃠")
+        self.assertEqual(h.flower("字", "wind"), "=͟͟͞͞字")
+
+    def test_mars_preset(self):
+        # 与语燕输入法 FlowerPreset 同款的直映射
+        self.assertEqual(h.flower("火星文", "mars"), "焱暒妏")
+        self.assertEqual(h.flower("ABCD1", "mars"), "ＡвсＤ①")
+
+    def test_convert_then_flower(self):
+        out = h.convert("我爱你", 1, seed=3, flower_style="vine")
+        self.assertTrue(out.startswith("ζั͡"))
+        self.assertEqual(h.restore(out), "我爱你")
+
+
 class TestDicts(unittest.TestCase):
     def test_full_table_size(self):
         m, r = h._full_tables()

@@ -2,12 +2,13 @@
 
 [![CI](https://github.com/hhym/huoxingwen-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/hhym/huoxingwen-skill/actions/workflows/ci.yml)
 
-简体中文 ⇄ 火星文 双向转换。按 [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) 的目录规范组织（`SKILL.md` + `scripts/` + `references/`），可直接放进 `.user_skills/` 给 AI 用，也可以当独立 Python 工具跑。
+简体中文 ⇄ 火星文 双向转换，另附 8 种花漾字装饰（花藤 / 凌乱 / 发芽 / 雾霾 / 禁止查看 / 长草 / 起风了）。按 [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) 的目录规范组织（`SKILL.md` + `scripts/` + `references/`），可直接放进 `.user_skills/` 给 AI 用，也可以当独立 Python 工具跑。
 
 ## 能力
 
 - **正向**：正常中文 → 火星文，三档强度（轻度只换异体字、中度加符号点缀、重度叠加假名/带圈数字/全角字母）
 - **反向**：火星文 → 可读中文，自动清理装饰符号、归一化全角、把带圈数字还原成汉字
+- **花漾字**：`flower` 给整段文字套组合符号装饰，或 `convert --flower` 先转火星文再叠装饰
 - **可复现**：`--seed` 固定随机种子，批量生成结果一致
 
 ## 快速开始
@@ -21,6 +22,9 @@ python3 scripts/huoxingwen.py convert "长文本……" --dict full
 
 python3 scripts/huoxingwen.py restore "為什仫莪啲裏屋囷伱們啲鈈┅樣"
 # 为什么我的里屋困你们的不一样
+
+python3 scripts/huoxingwen.py flower "花漾字" --style vine
+# ζั͡花ั͡漾ั͡字ั͡✾
 ```
 
 不传文本参数时从 stdin 读，方便接管道：
@@ -38,6 +42,21 @@ echo "今天也要好好生活" | python3 scripts/huoxingwen.py convert --level 
 
 `full` 模式有 310 组一对多冲突（同一个火星字对应多个简体字，如 `妑` ← 芭/吧/巴/把/爸），按拼音索引取靠前的简体。冲突清单在 `references/mars_conflicts.csv`，要求精确还原时请用默认模式或先查表。
 
+## 花漾字
+
+| style | 名称 | 效果 |
+| --- | --- | --- |
+| `mars` | 火星文（焱暒妏） | 花漾字 → 埖羕牸（逐字直映射，同语燕输入法） |
+| `vine` | 花藤字 | ζั͡花ั͡藤ั͡字ั͡✾ |
+| `messy` | 凌乱字 | ҉҉҉凌҉҉҉乱҉҉҉字҉҉҉ |
+| `germinate` | 发芽字 | ོ发ོ芽ོ字ོ |
+| `fog` | 雾霾字 | ҈҈҈҈雾҈҈҈҈霾҈҈҈҈字҈҈҈҈ |
+| `prohibit` | 禁止查看 | 禁⃠止⃠查⃠看⃠ |
+| `grass` | 长草字 | ҈҈҈长҈҈҈草҈҈҈字҈҈҈ |
+| `wind` | 起风了 | =͟͟͞͞起=͟͟͞͞风=͟͟͞͞了 |
+
+`restore` 会自动剥除这些装饰标记。组合符号在部分旧版 App 或表格软件里会显示为方框，正式场合先确认对方能看到。
+
 ## 目录
 
 ```
@@ -52,6 +71,7 @@ references/mars_conflicts.csv  # 310 组还原歧义清单
 - 手工精选 196 条：网络常见火星文对照（莪/伱/の/叻/恏 之类）
 - 全量三表：来自 [Niefee/textConversion](https://github.com/Niefee/textConversion) 的 `a.js`，已校验 3815 位逐位对齐，剔除其中 373 位实为繁体的项
 - 部分变体来自 MNBVC 里屋论坛语料的抽样（仫/啲/孓/昰/葑/掱/楿 等）
+- 花漾字 8 种风格的装饰规则取自 [gurecn/YuyanIme](https://github.com/gurecn/YuyanIme)（语燕输入法，BSD-3-Clause）的 `FlowerPreset.kt` / `StringUtils.kt`，字典部分与其逐位比对完全一致（0 差异）
 
 ## 边界
 
@@ -69,6 +89,7 @@ MIT
 
 - [Niefee/textConversion](https://github.com/Niefee/textConversion) —— 简体字、繁体字与火星文相互转换。`scripts/mars_dict.py` 的 3815 位三表（简体 / 繁体 / 火星文）即由该项目的 `a.js` 转换而来，本项目做了逐位对齐校验、繁体项剔除、O(1) 查表改造。
 - [esbatmop/MNBVC](https://github.com/esbatmop/MNBVC) —— 超大规模中文语料集。`builtin` 手工表中有 15 个字条、8 个变体取自其里屋论坛语料的真实用例抽样（仫 / 啲 / 孓 / 昰 / 葑 / 掱 / 楿 / 嫆 / 噫 / 箌 / 脳 等）。
+- [gurecn/YuyanIme](https://github.com/gurecn/YuyanIme) —— 语燕输入法。其 `yuyansdk` 子模块的 `FlowerPreset.kt`（3815 位三表）与 `StringUtils.converted2FlowerTypeface`（花漾字叠加规则）是本项目「花漾字」功能的来源；三表与本项目逐位比对 0 差异，确认同源。原项目为 BSD-3-Clause，此处仅采用其数据与规则描述，代码为独立实现。
 
 ## 测试
 
@@ -76,4 +97,4 @@ MIT
 python -m unittest discover -s tests -v
 ```
 
-GitHub Actions 在每次 push / PR 时自动跑 9 项测试：三档回环、种子可复现、全量表条目数、带圈数字还原、符号清理、SKILL.md frontmatter、冲突表行数。
+GitHub Actions 在每次 push / PR 时自动跑 13 项测试：三档回环、种子可复现、全量表条目数、带圈数字还原、符号清理、7 种花漾字包裹与剥除、火星文直映射、SKILL.md frontmatter、冲突表行数。

@@ -229,6 +229,48 @@ SYMBOLS = "☆★ゞ灬゛ゝゞ丶ヽヾミ彡〆メ﹏﹌﹋・…×·~〃※�
 
 CIRCLED = {str(i): ch for i, ch in enumerate("⓪①②③④⑤⑥⑦⑧⑨", start=0)}
 
+# 花漾字装饰表：样式 -> (前缀, 字间分隔, 后缀)
+# 参照 gurecn/YuyanIme（语燕输入法）StringUtils.converted2FlowerTypeface
+FLOWER_STYLES = {
+    "vine":      ("ζั͡", "ั͡", "ั͡✾"),      # 花藤字 ζั͡花ั͡藤ั͡字ั͡✾
+    "messy":     ("҉҉҉", "҉҉҉", "҉҉҉"),     # 凌乱字 ҉҉҉凌҉҉҉乱҉҉҉字҉҉҉
+    "germinate": ("ོ", "ོ", "ོ"),            # 发芽字 ོ发ོ芽ོ字ོ
+    "fog":       ("҈҈҈҈", "҈҈҈҈", "҈҈҈҈"),   # 雾霾字
+    "prohibit":  ("", "⃠", "⃠"),              # 禁止查看 禁⃠止⃠查⃠看⃠
+    "grass":     ("҈҈҈", "҈҈҈", "҈҈҈"),     # 长草字
+    "wind":      ("=͟͟͞͞", "=͟͟͞͞", ""),    # 起风了 =͟͟͞͞风=͟͟͞͞太=͟͟͞͞大=͟͟͞͞
+}
+
+# 花漾字装饰符号（还原时统一剥除）
+FLOWER_MARKS = "ั͡҉҈ོ⃠͟͞ζ✾"
+
+_MARS_PRESET = None
+
+
+def _mars_preset():
+    """语燕输入法同款直映射：简体->火星文、繁体->火星文。"""
+    global _MARS_PRESET
+    if _MARS_PRESET is None:
+        m = dict(zip(JT, HX))
+        m.update(dict(zip(FT, HX)))
+        _MARS_PRESET = m
+    return _MARS_PRESET
+
+
+def flower(text, style="vine"):
+    """给整段文字套花漾字样式；style=mars 时等价于语燕输入法的火星文模式。"""
+    if style == "mars":
+        pm = _mars_preset()
+        return "".join(pm.get(c, c) for c in text)
+    pre, sep, suf = FLOWER_STYLES[style]
+    return pre + sep.join(list(text)) + suf
+
+
+def strip_flower(text):
+    """剥除花漾字装饰标记，只留正文。"""
+    text = text.replace("=͟͟͞͞", "")  # 起风了：整体序列先去掉，避免残留等号
+    return "".join(c for c in text if c not in FLOWER_MARKS)
+
 # 常见谐音/符号（仅还原时参考，不展开）
 NOTES = {
     "520": "我爱你",
@@ -270,7 +312,7 @@ def _variants(ch, level, rng, mapping):
     return vs[:1] if level == 1 else vs
 
 
-def convert(text, level=2, seed=None, dict_mode="builtin"):
+def convert(text, level=2, seed=None, dict_mode="builtin", flower_style=None):
     rng = random.Random(seed if seed is not None else text)
     mapping = get_map(dict_mode)
     out = []
@@ -291,13 +333,15 @@ def convert(text, level=2, seed=None, dict_mode="builtin"):
                 if sym != last_sym:
                     out.append(sym)
                     last_sym = sym
-    return "".join(out)
+    s = "".join(out)
+    return flower(s, flower_style) if flower_style else s
 
 
 CIRCLED_HAN = {c: z for c, z in zip("①②③④⑤⑥⑦⑧⑨⑩", "一二三四五六七八九十")}
 
 
 def restore(text, dict_mode="builtin"):
+    text = strip_flower(text)  # 先剥掉花漾字装饰
     text = "".join(CIRCLED_HAN.get(c, c) for c in text)  # 带圈数字回汉字，再走 NFKC
     t = unicodedata.normalize("NFKC", text)
     rev = get_rev(dict_mode)
@@ -328,6 +372,14 @@ def main():
     c.add_argument("--seed", default=None, help="随机种子，用于复现同一结果")
     c.add_argument("--dict", default="builtin", choices=["builtin", "full"], dest="dict_mode",
                    help="builtin 手工精选 196 条 / full 全量 2000+ 条（还原有歧义）")
+    c.add_argument("--flower", default=None, choices=sorted(FLOWER_STYLES), dest="flower_style",
+                   help="转换后再套一层花漾字装饰（花藤/凌乱/发芽/雾霾/禁止/长草/起风）")
+
+    f = sub.add_parser("flower", help="花漾字装饰（8 种风格，含语燕输入法火星文模式）")
+    f.add_argument("text", nargs="?", help="待装饰文本；省略则读 stdin")
+    f.add_argument("--style", default="vine", choices=["mars"] + sorted(FLOWER_STYLES),
+                   help="mars 火星文直映射 / vine 花藤 / messy 凌乱 / germinate 发芽 / "
+                        "fog 雾霾 / prohibit 禁止查看 / grass 长草 / wind 起风了")
 
     r = sub.add_parser("restore", help="火星文 -> 正常中文")
     r.add_argument("text", nargs="?", help="待还原文本；省略则读 stdin")
@@ -338,7 +390,9 @@ def main():
     text = a.text if a.text else sys.stdin.read()
 
     if a.cmd == "convert":
-        print(convert(text, a.level, a.seed, a.dict_mode))
+        print(convert(text, a.level, a.seed, a.dict_mode, a.flower_style))
+    elif a.cmd == "flower":
+        print(flower(text, a.style))
     else:
         print(restore(text, a.dict_mode))
 
