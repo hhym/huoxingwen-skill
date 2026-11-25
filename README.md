@@ -1,7 +1,8 @@
 # 火星文 Skill · huoxingwen
 
 [![CI](https://github.com/hhym/huoxingwen-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/hhym/huoxingwen-skill/actions/workflows/ci.yml)
-
+火星文最好的用法不是炫技，是把一句话说得像一场旧梦。
+它长在 2008 年的网吧和深夜的显示器前：少年把心事敲成一串生僻字，只为不被同桌一眼看穿。所以它天生带着「半遮半掩」的性子——异体字是遮住的字，符号是句号之外的一声叹息。写的时候记住这一层：每一个被换掉的字，都是欲言又止的地方。
 简体中文 ⇄ 火星文 双向转换，另附 8 种花漾字装饰（花藤 / 凌乱 / 发芽 / 雾霾 / 禁止查看 / 长草 / 起风了）。按 [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) 的目录规范组织（`SKILL.md` + `scripts/` + `references/`），可直接放进 `.user_skills/` 给 AI 用，也可以当独立 Python 工具跑。
 
 ## 能力
