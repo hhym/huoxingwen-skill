@@ -1,5 +1,7 @@
 # 火星文 Skill · huoxingwen
 
+[![CI](https://github.com/hhym/huoxingwen-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/hhym/huoxingwen-skill/actions/workflows/ci.yml)
+
 简体中文 ⇄ 火星文 双向转换。按 [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) 的目录规范组织（`SKILL.md` + `scripts/` + `references/`），可直接放进 `.user_skills/` 给 AI 用，也可以当独立 Python 工具跑。
 
 ## 能力
@@ -48,7 +50,7 @@ references/mars_conflicts.csv  # 310 组还原歧义清单
 ## 数据来源
 
 - 手工精选 196 条：网络常见火星文对照（莪/伱/の/叻/恏 之类）
-- 全量三表：社区流传的 `a.js` 字典，已校验 3815 位逐位对齐，剔除其中 373 位实为繁体的项
+- 全量三表：来自 [Niefee/textConversion](https://github.com/Niefee/textConversion) 的 `a.js`，已校验 3815 位逐位对齐，剔除其中 373 位实为繁体的项
 - 部分变体来自 MNBVC 里屋论坛语料的抽样（仫/啲/孓/昰/葑/掱/楿 等）
 
 ## 边界
@@ -60,3 +62,18 @@ references/mars_conflicts.csv  # 310 组还原歧义清单
 ## 许可
 
 MIT
+
+## 致谢
+
+本项目的数据与代码基础来自这两个开源项目，均为 MIT 许可，与本项目兼容：
+
+- [Niefee/textConversion](https://github.com/Niefee/textConversion) —— 简体字、繁体字与火星文相互转换。`scripts/mars_dict.py` 的 3815 位三表（简体 / 繁体 / 火星文）即由该项目的 `a.js` 转换而来，本项目做了逐位对齐校验、繁体项剔除、O(1) 查表改造。
+- [esbatmop/MNBVC](https://github.com/esbatmop/MNBVC) —— 超大规模中文语料集。`builtin` 手工表中有 15 个字条、8 个变体取自其里屋论坛语料的真实用例抽样（仫 / 啲 / 孓 / 昰 / 葑 / 掱 / 楿 / 嫆 / 噫 / 箌 / 脳 等）。
+
+## 测试
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+GitHub Actions 在每次 push / PR 时自动跑 9 项测试：三档回环、种子可复现、全量表条目数、带圈数字还原、符号清理、SKILL.md frontmatter、冲突表行数。

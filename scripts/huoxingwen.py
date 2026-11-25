@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """火星文转换与还原（无第三方依赖）。
 
+数据来源见 README 致谢：Niefee/textConversion（三表）、esbatmop/MNBVC（语料抽样）。
+
 用法：
     python3 huoxingwen.py convert "我爱你" --level 2
     python3 huoxingwen.py restore "莪愛伱"

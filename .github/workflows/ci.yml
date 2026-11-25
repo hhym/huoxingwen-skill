@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 单元测试
+        run: python -m unittest discover -s tests -v
+      - name: 冒烟测试（CLI）
+        run: |
+          python scripts/huoxingwen.py convert "我爱你，永远守护你" --level 2 --seed 7
+          python scripts/huoxingwen.py convert "短句" --dict full | head -c 20
+          echo "今天也要好好生活" | python scripts/huoxingwen.py convert --level 2

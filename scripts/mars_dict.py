@@ -1,4 +1,7 @@
-"""火星文全量表（由 a.js 三表转换生成，3815 位对齐）。
+"""火星文全量表（由 Niefee/textConversion 的 a.js 三表转换生成，MIT）。
+
+原项目：https://github.com/Niefee/textConversion
+3815 位对齐，同索引对应同一字。
 JT 简体基准 / FT 繁体 / HX 火星文，同索引对应同一字。
 """
 
